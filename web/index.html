@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Matrícula 2026-II · Demo API Management</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="config.js"></script>
+</head>
+<body>
+  <header class="barra">
+    <div class="barra__marca">
+      <h1>Matrícula <span id="ciclo"></span></h1>
+      <p>Facultad de Ingeniería de Sistemas e Informática</p>
+    </div>
+    <form class="alumno" id="form-alumno">
+      <label for="alumno">Código de alumno</label>
+      <div class="alumno__fila">
+        <input id="alumno" inputmode="numeric" maxlength="8" autocomplete="off" required>
+        <button type="submit" class="btn btn--sec">Ver matrícula</button>
+      </div>
+    </form>
+  </header>
+
+  <main class="contenido">
+    <section class="panel catalogo" aria-labelledby="t-catalogo">
+      <div class="panel__cabecera">
+        <h2 id="t-catalogo">Cursos ofertados</h2>
+        <button class="btn-texto" id="recargar">Actualizar</button>
+      </div>
+      <ul class="cursos" id="lista-cursos" aria-live="polite"></ul>
+    </section>
+
+    <section class="panel matricula" aria-labelledby="t-matricula">
+      <h2 id="t-matricula">Tu matrícula</h2>
+      <div class="creditos">
+        <p class="creditos__cifra"><strong id="total-creditos">0</strong> de <span id="max-creditos">22</span> créditos</p>
+        <div class="creditos__barra" id="barra-creditos" role="img" aria-label="Créditos matriculados"></div>
+      </div>
+      <ul class="inscritos" id="lista-matricula"></ul>
+      <p class="aviso" id="aviso" role="status" hidden></p>
+    </section>
+  </main>
+
+  <section class="trafico" aria-labelledby="t-trafico">
+    <div class="trafico__cabecera">
+      <div>
+        <h2 id="t-trafico">Tráfico a través del API Gateway</h2>
+        <p>Cada llamada de esta página pasa por <code id="api-base"></code></p>
+      </div>
+      <div class="trafico__acciones">
+        <button class="btn btn--sec" id="probar-limite">Probar límite de peticiones</button>
+        <button class="btn btn--sec" id="probar-sin-clave">Llamar sin clave</button>
+        <button class="btn-texto" id="limpiar">Limpiar</button>
+      </div>
+    </div>
+    <div class="tabla-wrap">
+      <table class="log">
+        <thead>
+          <tr><th>Hora</th><th>Método</th><th>Ruta</th><th>Estado</th><th>ms</th><th>Correlation-Id</th><th>Cupo restante</th></tr>
+        </thead>
+        <tbody id="log"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <script src="app.js"></script>
+</body>
+</html>

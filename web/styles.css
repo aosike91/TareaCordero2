@@ -1,0 +1,118 @@
+:root {
+  --guinda: #6e1423;
+  --guinda-claro: #f3e7e9;
+  --tinta: #1d2330;
+  --pizarra: #5b6475;
+  --linea: #dadde3;
+  --fondo: #fafafb;
+  --blanco: #ffffff;
+  --ok: #1f7a4d;
+  --alerta: #a15c07;
+  --error: #b42318;
+  --radio: 6px;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: var(--tinta);
+  background: var(--fondo);
+  line-height: 1.5;
+}
+h1, h2 { margin: 0; line-height: 1.2; }
+h2 { font-size: 1.125rem; font-weight: 700; }
+button { font: inherit; cursor: pointer; }
+:focus-visible { outline: 3px solid var(--guinda); outline-offset: 2px; }
+
+/* Barra superior */
+.barra {
+  display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: flex-end; justify-content: space-between;
+  padding: 1.75rem clamp(1rem, 4vw, 3rem) 1.5rem;
+  background: var(--guinda); color: var(--blanco);
+}
+.barra h1 { font-size: clamp(1.75rem, 3.5vw, 2.5rem); font-weight: 800; letter-spacing: -0.02em; }
+.barra p { margin: .25rem 0 0; opacity: .8; }
+.alumno label { display: block; font-size: .875rem; margin-bottom: .35rem; opacity: .85; }
+.alumno__fila { display: flex; gap: .5rem; }
+.alumno input {
+  width: 9.5rem; padding: .55rem .75rem; border-radius: var(--radio); border: 1px solid transparent;
+  font: 600 1rem "IBM Plex Mono", ui-monospace, monospace; letter-spacing: .05em;
+}
+
+/* Botones */
+.btn { border-radius: var(--radio); padding: .55rem .9rem; border: 1px solid var(--guinda); font-weight: 600; }
+.btn--pri { background: var(--guinda); color: var(--blanco); }
+.btn--pri:hover { background: #57101c; }
+.btn--sec { background: var(--blanco); color: var(--guinda); }
+.btn--sec:hover { background: var(--guinda-claro); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn-texto { background: none; border: 0; color: var(--guinda); font-weight: 600; padding: .25rem; text-decoration: underline; text-underline-offset: 3px; }
+
+/* Contenido */
+.contenido {
+  display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 2rem;
+  padding: 2rem clamp(1rem, 4vw, 3rem); max-width: 1280px; margin: 0 auto;
+}
+@media (max-width: 860px) { .contenido { grid-template-columns: 1fr; } }
+.panel__cabecera { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: .75rem; }
+
+.cursos, .inscritos { list-style: none; margin: 0; padding: 0; }
+.curso {
+  display: grid; grid-template-columns: 5.5rem minmax(0, 1fr) auto; gap: .25rem 1rem; align-items: center;
+  padding: .9rem 0; border-top: 1px solid var(--linea);
+}
+.curso:last-child { border-bottom: 1px solid var(--linea); }
+.curso__codigo { font-family: "IBM Plex Mono", ui-monospace, monospace; font-weight: 500; color: var(--guinda); }
+.curso__nombre { font-weight: 600; }
+.curso__detalle { grid-column: 2; color: var(--pizarra); font-size: .875rem; }
+.curso__detalle .lleno { color: var(--error); font-weight: 600; }
+.curso .btn { grid-row: 1 / span 2; grid-column: 3; }
+
+.matricula {
+  background: var(--blanco); border: 1px solid var(--linea); border-radius: 10px; padding: 1.5rem;
+  align-self: start; position: sticky; top: 1rem;
+}
+.creditos { margin: 1rem 0 1.25rem; }
+.creditos__cifra { margin: 0 0 .5rem; color: var(--pizarra); }
+.creditos__cifra strong { font-size: 3rem; font-weight: 800; color: var(--tinta); letter-spacing: -0.03em; margin-right: .25rem; }
+.creditos__barra { display: grid; grid-template-columns: repeat(22, 1fr); gap: 3px; }
+.creditos__barra span { height: 14px; border-radius: 2px; background: var(--linea); transition: background-color .25s; }
+.creditos__barra span.lleno { background: var(--guinda); }
+.inscrito { display: flex; justify-content: space-between; gap: 1rem; align-items: center; padding: .6rem 0; border-top: 1px solid var(--linea); }
+.inscrito small { display: block; color: var(--pizarra); }
+.vacio { color: var(--pizarra); padding: .5rem 0; }
+.aviso { margin: 1rem 0 0; padding: .75rem .9rem; border-radius: var(--radio); border-left: 4px solid var(--error); background: #fdf0ef; }
+.aviso.ok { border-color: var(--ok); background: #eef7f2; }
+
+/* Tráfico */
+.trafico { background: var(--tinta); color: #e8eaef; padding: 1.75rem clamp(1rem, 4vw, 3rem) 2.5rem; }
+.trafico__cabecera { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: space-between; align-items: flex-end; max-width: 1280px; margin: 0 auto 1rem; }
+.trafico p { margin: .25rem 0 0; color: #a9b0bf; }
+.trafico code { color: #fff; font-family: "IBM Plex Mono", ui-monospace, monospace; }
+.trafico__acciones { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+.trafico .btn--sec { background: transparent; color: #fff; border-color: #6b7385; }
+.trafico .btn--sec:hover { background: #2b3243; }
+.trafico .btn-texto { color: #cfd4de; }
+.tabla-wrap { max-width: 1280px; margin: 0 auto; overflow-x: auto; max-height: 340px; overflow-y: auto; }
+.log { width: 100%; border-collapse: collapse; font: .8125rem/1.4 "IBM Plex Mono", ui-monospace, monospace; }
+.log th { text-align: left; font-weight: 500; color: #a9b0bf; padding: .4rem .75rem .4rem 0; border-bottom: 1px solid #3a4152; position: sticky; top: 0; background: var(--tinta); }
+.log td { padding: .4rem .75rem .4rem 0; border-bottom: 1px solid #2b3243; white-space: nowrap; }
+.log .estado { font-weight: 500; padding: .05rem .4rem; border-radius: 4px; }
+.log .s2 { background: #1f7a4d33; color: #7ee2ad; }
+.log .s4 { background: #b4231833; color: #ffb0a8; }
+.log .s429 { background: #a15c0744; color: #ffd08a; }
+.log .s5 { background: #b4231866; color: #fff; }
+.log tr.nuevo td { animation: resaltar 1.2s ease-out; }
+@keyframes resaltar { from { background: #3a4152; } to { background: transparent; } }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+
+@media (max-width: 560px) {
+  .curso { grid-template-columns: minmax(0, 1fr) auto; }
+  .curso__codigo, .curso__nombre, .curso__detalle { grid-column: 1; }
+  .curso .btn { grid-column: 2; grid-row: 1 / span 3; }
+}
+@media (max-width: 860px) { .matricula { position: static; } }
