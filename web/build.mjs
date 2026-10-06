@@ -8,7 +8,7 @@ if (!apiBase?.startsWith('https://') || !subscriptionKey) {
 }
 
 mkdirSync('dist', { recursive: true });
-for (const name of ['index.html', 'styles.css', 'app.js']) {
+for (const name of ['index.html', 'styles.css', 'flujo.js', 'app.js']) {
   cpSync(name, `dist/${name}`);
 }
 writeFileSync('dist/config.js', `window.APP_CONFIG = ${JSON.stringify({

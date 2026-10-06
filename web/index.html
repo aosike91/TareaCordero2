@@ -6,56 +6,212 @@
   <title>Matrícula 2026-II · Demo API Management</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <script src="config.js"></script>
 </head>
 <body>
   <header class="barra">
     <div class="barra__marca">
-      <h1>Matrícula <span id="ciclo"></span></h1>
-      <p>Facultad de Ingeniería de Sistemas e Informática</p>
+      <svg class="barra__logo" viewBox="0 0 40 40" aria-hidden="true">
+        <rect width="40" height="40" rx="8" fill="currentColor" opacity=".14"/>
+        <path d="M10 28V13l10 8 10-8v15" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+      </svg>
+      <div>
+        <p class="barra__sistema">Sistema de Matrícula</p>
+        <p class="barra__facultad">Facultad de Ingeniería de Sistemas e Informática</p>
+      </div>
     </div>
     <form class="alumno" id="form-alumno">
       <label for="alumno">Código de alumno</label>
       <div class="alumno__fila">
         <input id="alumno" inputmode="numeric" maxlength="8" autocomplete="off" required>
-        <button type="submit" class="btn btn--sec">Ver matrícula</button>
+        <button type="submit" class="btn btn--claro">Ingresar</button>
       </div>
     </form>
   </header>
 
-  <main class="contenido">
-    <section class="panel catalogo" aria-labelledby="t-catalogo">
-      <div class="panel__cabecera">
-        <h2 id="t-catalogo">Cursos ofertados</h2>
-        <button class="btn-texto" id="recargar">Actualizar</button>
-      </div>
-      <ul class="cursos" id="lista-cursos" aria-live="polite"></ul>
-    </section>
+  <div class="pagina">
+    <main class="tramite">
+      <section class="ficha-alumno" aria-label="Datos del alumno">
+        <div class="dato">
+          <span class="dato__rotulo">Alumno</span>
+          <span class="dato__valor mono" id="dato-alumno">—</span>
+        </div>
+        <div class="dato">
+          <span class="dato__rotulo">Periodo</span>
+          <span class="dato__valor" id="dato-ciclo">—</span>
+        </div>
+        <div class="dato">
+          <span class="dato__rotulo">Estado</span>
+          <span class="estado-matricula" id="dato-estado">—</span>
+        </div>
+        <div class="dato dato--creditos">
+          <span class="dato__rotulo">Créditos</span>
+          <span class="dato__valor"><strong id="total-creditos">0</strong> / <span id="max-creditos">22</span></span>
+          <div class="creditos__barra" id="barra-creditos" role="img" aria-label="Créditos matriculados"></div>
+        </div>
+      </section>
 
-    <section class="panel matricula" aria-labelledby="t-matricula">
-      <h2 id="t-matricula">Tu matrícula</h2>
-      <div class="creditos">
-        <p class="creditos__cifra"><strong id="total-creditos">0</strong> de <span id="max-creditos">22</span> créditos</p>
-        <div class="creditos__barra" id="barra-creditos" role="img" aria-label="Créditos matriculados"></div>
-      </div>
-      <ul class="inscritos" id="lista-matricula"></ul>
       <p class="aviso" id="aviso" role="status" hidden></p>
-    </section>
-  </main>
+
+      <section class="tarjeta" aria-labelledby="t-oferta">
+        <div class="tarjeta__cabecera">
+          <div>
+            <p class="paso-num">Paso 1</p>
+            <h2 id="t-oferta">Oferta de asignaturas</h2>
+          </div>
+          <div class="herramientas">
+            <input type="search" id="buscar" placeholder="Buscar código o nombre" aria-label="Buscar asignatura">
+            <button class="btn-texto" id="recargar">Actualizar</button>
+          </div>
+        </div>
+        <div class="tabla" role="table" aria-label="Asignaturas ofertadas">
+          <div class="tabla__fila tabla__cab" role="row">
+            <span role="columnheader">Código</span>
+            <span role="columnheader">Asignatura</span>
+            <span role="columnheader" class="num">Cr.</span>
+            <span role="columnheader">Vacantes</span>
+            <span role="columnheader"><span class="sr">Acción</span></span>
+          </div>
+          <div id="lista-cursos" role="rowgroup" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <section class="tarjeta" aria-labelledby="t-ficha">
+        <div class="tarjeta__cabecera">
+          <div>
+            <p class="paso-num">Paso 2</p>
+            <h2 id="t-ficha">Ficha de matrícula</h2>
+          </div>
+          <button class="btn btn--sec" id="imprimir">Imprimir ficha</button>
+        </div>
+        <div class="tabla tabla--ficha" role="table" aria-label="Asignaturas matriculadas">
+          <div class="tabla__fila tabla__cab" role="row">
+            <span role="columnheader">Código</span>
+            <span role="columnheader">Asignatura</span>
+            <span role="columnheader" class="num">Cr.</span>
+            <span role="columnheader"><span class="sr">Acción</span></span>
+          </div>
+          <div id="lista-matricula" role="rowgroup"></div>
+          <div class="tabla__fila tabla__total" role="row">
+            <span></span><span>Total de créditos</span><span class="num" id="total-ficha">0</span><span></span>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <aside class="vivo" aria-labelledby="t-vivo">
+      <div class="vivo__cabecera">
+        <div>
+          <h2 id="t-vivo"><span class="punto-vivo" aria-hidden="true"></span>Arquitectura en vivo</h2>
+          <p>Cada acción viaja por el gateway hasta la base de datos. Los tiempos son los reales que reportan APIM y los servicios.</p>
+        </div>
+        <div class="velocidad" role="radiogroup" aria-label="Velocidad de la animación">
+          <label><input type="radio" name="vel" value="0.5"><span>Lento</span></label>
+          <label><input type="radio" name="vel" value="1" checked><span>Normal</span></label>
+          <label><input type="radio" name="vel" value="2.5"><span>Rápido</span></label>
+        </div>
+      </div>
+
+      <svg id="diagrama" viewBox="0 0 640 600" role="img" aria-labelledby="diag-titulo">
+        <title id="diag-titulo">Navegador, Azure API Management, cursos-service y matricula-service con sus bases SQLite</title>
+        <defs>
+          <marker id="flecha" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0 0L10 5L0 10z" class="flecha"/>
+          </marker>
+        </defs>
+
+        <!-- Límites -->
+        <rect class="limite limite--azure" x="14" y="104" width="612" height="484" rx="14"/>
+        <text class="limite__rotulo limite__rotulo--azure" x="30" y="126">Microsoft Azure</text>
+        <rect class="limite limite--aca" x="32" y="262" width="576" height="310" rx="12"/>
+        <text class="limite__rotulo" x="48" y="283">Azure Container Apps</text>
+        <rect class="contexto" x="48" y="296" width="244" height="262" rx="10"/>
+        <text class="contexto__rotulo" x="60" y="314">Contexto: Catálogo</text>
+        <rect class="contexto" x="348" y="296" width="244" height="262" rx="10"/>
+        <text class="contexto__rotulo" x="360" y="314">Contexto: Matrícula</text>
+
+        <!-- Aristas -->
+        <path id="e-nav-apim" class="arista arista--norte" d="M320 72 L320 124" marker-end="url(#flecha)"/>
+        <path id="e-apim-cursos" class="arista arista--gw" d="M262 216 C262 268 170 270 170 322" marker-end="url(#flecha)"/>
+        <path id="e-apim-matricula" class="arista arista--gw" d="M378 216 C378 268 470 270 470 322" marker-end="url(#flecha)"/>
+        <path id="e-matricula-cursos" class="arista arista--eo" d="M358 352 L282 352" marker-end="url(#flecha)"/>
+        <path id="e-cursos-db_cursos" class="arista" d="M170 384 L170 452" marker-end="url(#flecha)"/>
+        <path id="e-matricula-db_matricula" class="arista" d="M470 384 L470 452" marker-end="url(#flecha)"/>
+        <text class="arista__rotulo" x="330" y="96">HTTPS + clave de suscripción</text>
+        <text class="arista__rotulo arista__rotulo--gw" x="206" y="258" text-anchor="end">/catalogo/*</text>
+        <text class="arista__rotulo arista__rotulo--gw" x="434" y="258">/matricula/*</text>
+        <text class="arista__rotulo" x="320" y="342" text-anchor="middle">este-oeste</text>
+
+        <!-- Nodos -->
+        <g id="n-nav" class="nodo nodo--nav">
+          <rect x="200" y="18" width="240" height="54" rx="27"/>
+          <text class="nodo__titulo" x="320" y="42" text-anchor="middle">Navegador del alumno</text>
+          <text class="nodo__sub" id="n-nav-sub" x="320" y="59" text-anchor="middle">web en Vercel</text>
+        </g>
+        <g id="n-apim" class="nodo nodo--apim">
+          <rect x="170" y="124" width="300" height="92" rx="12"/>
+          <text class="nodo__titulo" x="320" y="148" text-anchor="middle">Azure API Management</text>
+          <text class="nodo__sub" x="320" y="164" text-anchor="middle">Consumption · producto «Demo Matrícula»</text>
+          <g class="chip" id="chip-clave"><rect x="184" y="178" width="64" height="24" rx="12"/><text x="216" y="194" text-anchor="middle">Clave</text></g>
+          <g class="chip" id="chip-limite"><rect x="254" y="178" width="64" height="24" rx="12"/><text x="286" y="194" text-anchor="middle">Límite</text></g>
+          <g class="chip" id="chip-ruta"><rect x="324" y="178" width="64" height="24" rx="12"/><text x="356" y="194" text-anchor="middle">Ruta</text></g>
+          <g class="chip" id="chip-cors"><rect x="394" y="178" width="64" height="24" rx="12"/><text x="426" y="194" text-anchor="middle">CORS</text></g>
+        </g>
+        <g id="n-cursos" class="nodo">
+          <rect x="60" y="322" width="220" height="62" rx="10"/>
+          <text class="nodo__titulo" x="170" y="347" text-anchor="middle">cursos-service</text>
+          <text class="nodo__sub" id="n-cursos-sub" x="170" y="366" text-anchor="middle">Flask · Curso, Vacantes</text>
+        </g>
+        <g id="n-matricula" class="nodo">
+          <rect x="360" y="322" width="220" height="62" rx="10"/>
+          <text class="nodo__titulo" x="470" y="347" text-anchor="middle">matricula-service</text>
+          <text class="nodo__sub" id="n-matricula-sub" x="470" y="366" text-anchor="middle">Flask · Matrícula, ACL</text>
+        </g>
+        <g id="n-db_cursos" class="nodo nodo--db">
+          <path d="M105 462 a65 11 0 0 1 130 0 v56 a65 11 0 0 1 -130 0z"/>
+          <path class="db__tapa" d="M105 462 a65 11 0 0 0 130 0"/>
+          <text class="nodo__titulo" x="170" y="494" text-anchor="middle">SQLite</text>
+          <text class="nodo__sub" x="170" y="510" text-anchor="middle">cursos.db</text>
+        </g>
+        <text class="db__op" id="op-db_cursos" x="170" y="546" text-anchor="middle"></text>
+        <g id="n-db_matricula" class="nodo nodo--db">
+          <path d="M405 462 a65 11 0 0 1 130 0 v56 a65 11 0 0 1 -130 0z"/>
+          <path class="db__tapa" d="M405 462 a65 11 0 0 0 130 0"/>
+          <text class="nodo__titulo" x="470" y="494" text-anchor="middle">SQLite</text>
+          <text class="nodo__sub" x="470" y="510" text-anchor="middle">matriculas.db</text>
+        </g>
+        <text class="db__op" id="op-db_matricula" x="470" y="546" text-anchor="middle"></text>
+
+        <g id="capa-paquetes"></g>
+      </svg>
+
+      <div class="detalle" aria-live="polite">
+        <div class="detalle__cabecera">
+          <p id="detalle-titulo">Haz una acción en el portal para ver su recorrido.</p>
+          <button class="btn-texto" id="omitir" hidden>Omitir <span id="pendientes">0</span> en cola</button>
+        </div>
+        <div class="tiempos" id="tiempos" hidden></div>
+        <ol class="pasos" id="pasos"></ol>
+      </div>
+
+      <div class="pruebas">
+        <span>Probar el gateway:</span>
+        <button class="btn btn--sec" id="probar-sin-clave">Llamar sin clave</button>
+        <button class="btn btn--sec" id="probar-limite">Superar el límite</button>
+        <button class="btn btn--sec" id="probar-invalido">Código inválido</button>
+      </div>
+    </aside>
+  </div>
 
   <section class="trafico" aria-labelledby="t-trafico">
     <div class="trafico__cabecera">
       <div>
-        <h2 id="t-trafico">Tráfico a través del API Gateway</h2>
-        <p>Cada llamada de esta página pasa por <code id="api-base"></code></p>
+        <h2 id="t-trafico">Registro de tráfico</h2>
+        <p>Todas las llamadas pasan por <code id="api-base"></code>. Haz clic en una fila para repetir su recorrido.</p>
       </div>
-      <div class="trafico__acciones">
-        <button class="btn btn--sec" id="probar-limite">Probar límite de peticiones</button>
-        <button class="btn btn--sec" id="probar-sin-clave">Llamar sin clave</button>
-        <button class="btn-texto" id="limpiar">Limpiar</button>
-      </div>
+      <button class="btn-texto" id="limpiar">Limpiar</button>
     </div>
     <div class="tabla-wrap">
       <table class="log">
@@ -67,6 +223,7 @@
     </div>
   </section>
 
+  <script src="flujo.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

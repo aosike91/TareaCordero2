@@ -1,15 +1,21 @@
 :root {
   --guinda: #6e1423;
+  --guinda-osc: #57101c;
   --guinda-claro: #f3e7e9;
+  --azure: #0078d4;
+  --azure-claro: #e8f1fb;
   --tinta: #1d2330;
   --pizarra: #5b6475;
   --linea: #dadde3;
-  --fondo: #fafafb;
+  --fondo: #f4f5f7;
   --blanco: #ffffff;
   --ok: #1f7a4d;
+  --ok-claro: #eef7f2;
   --alerta: #a15c07;
   --error: #b42318;
+  --error-claro: #fdf0ef;
   --radio: 6px;
+  --mono: "IBM Plex Mono", ui-monospace, monospace;
 }
 
 * { box-sizing: border-box; }
@@ -22,83 +28,216 @@ body {
 }
 h1, h2 { margin: 0; line-height: 1.2; }
 h2 { font-size: 1.125rem; font-weight: 700; }
+p { margin: 0; }
 button { font: inherit; cursor: pointer; }
 :focus-visible { outline: 3px solid var(--guinda); outline-offset: 2px; }
+.mono { font-family: var(--mono); }
+.num { text-align: right; font-variant-numeric: tabular-nums; }
+.tenue { color: var(--pizarra); font-weight: 400; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 
-/* Barra superior */
+/* ---------- Barra superior ---------- */
 .barra {
-  display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: flex-end; justify-content: space-between;
-  padding: 1.75rem clamp(1rem, 4vw, 3rem) 1.5rem;
+  display: flex; flex-wrap: wrap; gap: 1rem 2rem; align-items: center; justify-content: space-between;
+  padding: 1rem clamp(1rem, 3vw, 2.5rem);
   background: var(--guinda); color: var(--blanco);
+  border-bottom: 4px solid #c9a227;
 }
-.barra h1 { font-size: clamp(1.75rem, 3.5vw, 2.5rem); font-weight: 800; letter-spacing: -0.02em; }
-.barra p { margin: .25rem 0 0; opacity: .8; }
-.alumno label { display: block; font-size: .875rem; margin-bottom: .35rem; opacity: .85; }
+.barra__marca { display: flex; gap: .85rem; align-items: center; }
+.barra__logo { width: 44px; height: 44px; flex: none; }
+.barra__sistema { font-size: 1.35rem; font-weight: 800; letter-spacing: -0.01em; line-height: 1.15; }
+.barra__facultad { font-size: .875rem; opacity: .82; }
+.alumno label { display: block; font-size: .75rem; text-transform: uppercase; letter-spacing: .06em; margin-bottom: .25rem; opacity: .85; }
 .alumno__fila { display: flex; gap: .5rem; }
 .alumno input {
-  width: 9.5rem; padding: .55rem .75rem; border-radius: var(--radio); border: 1px solid transparent;
-  font: 600 1rem "IBM Plex Mono", ui-monospace, monospace; letter-spacing: .05em;
+  width: 9.5rem; padding: .5rem .75rem; border-radius: var(--radio); border: 1px solid transparent;
+  font: 600 1rem var(--mono); letter-spacing: .05em;
 }
 
-/* Botones */
-.btn { border-radius: var(--radio); padding: .55rem .9rem; border: 1px solid var(--guinda); font-weight: 600; }
+/* ---------- Botones ---------- */
+.btn { border-radius: var(--radio); padding: .45rem .85rem; border: 1px solid var(--guinda); font-weight: 600; font-size: .875rem; white-space: nowrap; }
 .btn--pri { background: var(--guinda); color: var(--blanco); }
-.btn--pri:hover { background: #57101c; }
+.btn--pri:hover:not(:disabled) { background: var(--guinda-osc); }
 .btn--sec { background: var(--blanco); color: var(--guinda); }
-.btn--sec:hover { background: var(--guinda-claro); }
-.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn--sec:hover:not(:disabled) { background: var(--guinda-claro); }
+.btn--claro { background: var(--blanco); color: var(--guinda); border-color: var(--blanco); }
+.btn--claro:hover { background: var(--guinda-claro); }
+.btn--hecho { background: var(--ok-claro); color: var(--ok); border-color: #b5dcc6; }
+.btn:disabled { cursor: default; }
+.btn--pri:disabled { opacity: .5; }
 .btn-texto { background: none; border: 0; color: var(--guinda); font-weight: 600; padding: .25rem; text-decoration: underline; text-underline-offset: 3px; }
 
-/* Contenido */
-.contenido {
-  display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 2rem;
-  padding: 2rem clamp(1rem, 4vw, 3rem); max-width: 1280px; margin: 0 auto;
+/* ---------- Disposición ---------- */
+.pagina {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 620px); gap: 1.5rem; align-items: start;
+  max-width: 1440px; margin: 0 auto; padding: 1.5rem clamp(1rem, 3vw, 2.5rem);
 }
-@media (max-width: 860px) { .contenido { grid-template-columns: 1fr; } }
-.panel__cabecera { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: .75rem; }
+@media (max-width: 1120px) { .pagina { grid-template-columns: minmax(0, 1fr); } }
+.tramite { display: grid; gap: 1.25rem; min-width: 0; }
 
-.cursos, .inscritos { list-style: none; margin: 0; padding: 0; }
-.curso {
-  display: grid; grid-template-columns: 5.5rem minmax(0, 1fr) auto; gap: .25rem 1rem; align-items: center;
-  padding: .9rem 0; border-top: 1px solid var(--linea);
+/* ---------- Ficha del alumno ---------- */
+.ficha-alumno {
+  display: grid; grid-template-columns: repeat(3, auto) minmax(180px, 1fr); gap: 1rem 2rem; align-items: start;
+  background: var(--blanco); border: 1px solid var(--linea); border-left: 5px solid var(--guinda);
+  border-radius: 10px; padding: 1rem 1.25rem;
 }
-.curso:last-child { border-bottom: 1px solid var(--linea); }
-.curso__codigo { font-family: "IBM Plex Mono", ui-monospace, monospace; font-weight: 500; color: var(--guinda); }
-.curso__nombre { font-weight: 600; }
-.curso__detalle { grid-column: 2; color: var(--pizarra); font-size: .875rem; }
-.curso__detalle .lleno { color: var(--error); font-weight: 600; }
-.curso .btn { grid-row: 1 / span 2; grid-column: 3; }
-
-.matricula {
-  background: var(--blanco); border: 1px solid var(--linea); border-radius: 10px; padding: 1.5rem;
-  align-self: start; position: sticky; top: 1rem;
-}
-.creditos { margin: 1rem 0 1.25rem; }
-.creditos__cifra { margin: 0 0 .5rem; color: var(--pizarra); }
-.creditos__cifra strong { font-size: 3rem; font-weight: 800; color: var(--tinta); letter-spacing: -0.03em; margin-right: .25rem; }
-.creditos__barra { display: grid; grid-template-columns: repeat(22, 1fr); gap: 3px; }
-.creditos__barra span { height: 14px; border-radius: 2px; background: var(--linea); transition: background-color .25s; }
+@media (max-width: 640px) { .ficha-alumno { grid-template-columns: 1fr 1fr; } }
+.dato { display: grid; gap: .15rem; }
+.dato__rotulo { font-size: .75rem; text-transform: uppercase; letter-spacing: .06em; color: var(--pizarra); }
+.dato__valor { font-size: 1.125rem; font-weight: 700; }
+.dato__valor strong { font-size: 1.5rem; }
+.estado-matricula { justify-self: start; font-size: .8125rem; font-weight: 700; padding: .2rem .6rem; border-radius: 99px; background: #fff4e0; color: var(--alerta); margin-top: .2rem; }
+.estado-matricula--ok { background: var(--ok-claro); color: var(--ok); }
+.creditos__barra { display: grid; grid-template-columns: repeat(22, 1fr); gap: 2px; margin-top: .3rem; }
+.creditos__barra span { height: 10px; border-radius: 2px; background: var(--linea); transition: background-color .25s; }
 .creditos__barra span.lleno { background: var(--guinda); }
-.inscrito { display: flex; justify-content: space-between; gap: 1rem; align-items: center; padding: .6rem 0; border-top: 1px solid var(--linea); }
-.inscrito small { display: block; color: var(--pizarra); }
-.vacio { color: var(--pizarra); padding: .5rem 0; }
-.aviso { margin: 1rem 0 0; padding: .75rem .9rem; border-radius: var(--radio); border-left: 4px solid var(--error); background: #fdf0ef; }
-.aviso.ok { border-color: var(--ok); background: #eef7f2; }
 
-/* Tráfico */
-.trafico { background: var(--tinta); color: #e8eaef; padding: 1.75rem clamp(1rem, 4vw, 3rem) 2.5rem; }
-.trafico__cabecera { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: space-between; align-items: flex-end; max-width: 1280px; margin: 0 auto 1rem; }
+.aviso { padding: .7rem .9rem; border-radius: var(--radio); border-left: 4px solid var(--error); background: var(--error-claro); }
+.aviso.ok { border-color: var(--ok); background: var(--ok-claro); }
+
+/* ---------- Tarjetas y tablas ---------- */
+.tarjeta { background: var(--blanco); border: 1px solid var(--linea); border-radius: 10px; padding: 1.1rem 1.25rem 1.25rem; min-width: 0; }
+.tarjeta__cabecera { display: flex; flex-wrap: wrap; gap: .75rem; justify-content: space-between; align-items: flex-end; margin-bottom: .9rem; }
+.paso-num { font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--guinda); }
+.herramientas { display: flex; gap: .5rem; align-items: center; }
+.herramientas input {
+  width: min(16rem, 100%); padding: .45rem .7rem; border: 1px solid var(--linea); border-radius: var(--radio); font: inherit; font-size: .875rem;
+}
+
+.tabla { font-size: .9375rem; }
+.tabla__fila {
+  display: grid; grid-template-columns: 5.5rem minmax(0, 1fr) 2.5rem 9.5rem 7.5rem; gap: .25rem 1rem; align-items: center;
+  padding: .6rem .5rem; border-bottom: 1px solid var(--linea);
+}
+.tabla--ficha .tabla__fila { grid-template-columns: 5.5rem minmax(0, 1fr) 2.5rem 5rem; }
+.tabla__cab { font-size: .75rem; text-transform: uppercase; letter-spacing: .06em; color: var(--pizarra); background: var(--fondo); border-radius: var(--radio) var(--radio) 0 0; padding-block: .45rem; }
+.tabla__total { font-weight: 700; border-bottom: 0; border-top: 2px solid var(--tinta); }
+.codigo { color: var(--guinda); font-weight: 600; }
+.nombre { font-weight: 600; }
+.accion { text-align: right; }
+.vacio { color: var(--pizarra); padding: .9rem .5rem; }
+.vacantes { display: grid; gap: .2rem; font-size: .8125rem; color: var(--pizarra); }
+.vacantes__barra { height: 6px; border-radius: 3px; background: var(--ok-claro); overflow: hidden; }
+.vacantes__barra span { display: block; height: 100%; background: var(--ok); transition: width .3s; }
+.vacantes--llenas { color: var(--error); font-weight: 600; }
+.vacantes--llenas .vacantes__barra span { background: var(--error); }
+
+@media (max-width: 640px) {
+  .tabla__cab { display: none; }
+  .tabla__fila, .tabla--ficha .tabla__fila { grid-template-columns: minmax(0, 1fr) auto; }
+  .tabla__fila .codigo { grid-column: 1; }
+  .tabla__fila .nombre { grid-column: 1; }
+  .tabla__fila .num { grid-column: 2; grid-row: 1; }
+  .tabla__fila .num::after { content: " cr."; }
+  .tabla__fila .vacantes { grid-column: 1; }
+  .tabla__fila .accion { grid-column: 2; grid-row: 2 / span 2; }
+  .tabla__total .num::after { content: ""; }
+}
+
+/* ---------- Arquitectura en vivo ---------- */
+.vivo {
+  position: sticky; top: 1rem; background: var(--blanco); border: 1px solid var(--linea); border-radius: 10px;
+  padding: 1.1rem 1.25rem 1.25rem; display: grid; gap: .9rem; min-width: 0;
+}
+@media (max-width: 1120px) { .vivo { position: static; } }
+.vivo__cabecera { display: flex; flex-wrap: wrap; gap: .75rem; justify-content: space-between; align-items: flex-start; }
+.vivo__cabecera p { font-size: .8125rem; color: var(--pizarra); max-width: 34rem; margin-top: .2rem; }
+.punto-vivo { display: inline-block; width: .6rem; height: .6rem; border-radius: 50%; background: #d92d20; margin-right: .5rem; vertical-align: .1em; animation: latido 1.6s infinite; }
+@keyframes latido { 0%, 100% { box-shadow: 0 0 0 0 #d92d2066; } 50% { box-shadow: 0 0 0 6px #d92d2000; } }
+.velocidad { display: inline-flex; border: 1px solid var(--linea); border-radius: var(--radio); overflow: hidden; font-size: .8125rem; }
+.velocidad label { position: relative; }
+.velocidad input { position: absolute; opacity: 0; }
+.velocidad span { display: block; padding: .3rem .65rem; cursor: pointer; }
+.velocidad input:checked + span { background: var(--tinta); color: var(--blanco); }
+.velocidad input:focus-visible + span { outline: 3px solid var(--guinda); outline-offset: -3px; }
+
+#diagrama { width: 100%; height: auto; display: block; font-family: "Public Sans", system-ui, sans-serif; }
+.limite { fill: none; stroke-width: 1.5; }
+.limite--azure { stroke: var(--azure); stroke-dasharray: 7 5; }
+.limite--aca { stroke: var(--pizarra); }
+.limite__rotulo { font-size: 13px; font-weight: 700; fill: var(--pizarra); }
+.limite__rotulo--azure { fill: var(--azure); }
+.contexto { fill: #fafafb; stroke: var(--linea); }
+.contexto__rotulo { font-size: 11px; font-weight: 600; fill: var(--pizarra); }
+
+.arista { fill: none; stroke: #9aa1af; stroke-width: 2; transition: stroke .2s; }
+.arista--norte { stroke: var(--guinda); }
+.arista--gw { stroke: var(--azure); }
+.arista--eo { stroke-dasharray: 6 4; }
+.arista.activa { stroke-width: 3.5; }
+.flecha { fill: #9aa1af; }
+.arista__rotulo { font-size: 11px; fill: var(--pizarra); }
+.arista__rotulo--gw { fill: var(--azure); font-family: var(--mono); }
+
+.nodo rect, .nodo path { fill: var(--blanco); stroke: var(--pizarra); stroke-width: 1.5; transition: fill .25s, stroke .25s; }
+.nodo .db__tapa { fill: none; }
+.nodo__titulo { font-size: 14px; font-weight: 700; fill: var(--tinta); }
+.nodo__sub { font-size: 11px; fill: var(--pizarra); }
+.nodo--nav rect { fill: var(--guinda-claro); stroke: var(--guinda); }
+.nodo--apim > rect { fill: var(--azure-claro); stroke: var(--azure); }
+.nodo.activo rect, .nodo.activo path:not(.db__tapa) { stroke: var(--guinda); stroke-width: 2.5; fill: #fff7f8; }
+.nodo--apim.activo > rect { fill: #d6e8fa; stroke: var(--azure); }
+.nodo.escribiendo path:not(.db__tapa) { fill: #fff1c2; stroke: var(--alerta); stroke-width: 2.5; }
+.nodo.fallo > rect { stroke: var(--error); stroke-width: 2.5; fill: var(--error-claro); }
+.db__op { font: 500 10.5px var(--mono); fill: var(--alerta); }
+.db__op.mal { fill: var(--error); }
+
+.chip rect { fill: var(--blanco); stroke: #b8c9dc; stroke-width: 1; transition: fill .2s; }
+.chip text { font-size: 11px; font-weight: 600; fill: var(--pizarra); }
+.chip.ok rect { fill: var(--ok-claro); stroke: var(--ok); }
+.chip.ok text { fill: var(--ok); }
+.chip.mal rect { fill: var(--error); stroke: var(--error); }
+.chip.mal text { fill: var(--blanco); }
+
+.paquete circle { fill: var(--guinda); stroke: var(--blanco); stroke-width: 2.5; }
+.paquete text { font: 600 10px var(--mono); fill: var(--tinta); paint-order: stroke; stroke: var(--blanco); stroke-width: 3px; }
+.paquete--vuelta circle { fill: var(--ok); }
+.paquete--limite circle { fill: var(--alerta); }
+.paquete--error circle { fill: var(--error); }
+
+.detalle { border-top: 1px solid var(--linea); padding-top: .8rem; display: grid; gap: .6rem; }
+.detalle__cabecera { display: flex; justify-content: space-between; gap: .5rem; align-items: baseline; font-weight: 600; font-size: .9375rem; }
+.detalle__cabecera .mono { word-break: break-all; }
+.estado { font: 500 .8125rem var(--mono); padding: .05rem .4rem; border-radius: 4px; }
+.detalle .s2 { background: var(--ok-claro); color: var(--ok); }
+.detalle .s4, .detalle .s5 { background: var(--error-claro); color: var(--error); }
+.detalle .s429 { background: #fff4e0; color: var(--alerta); }
+
+.tiempos__barra { display: flex; height: 10px; border-radius: 5px; overflow: hidden; gap: 2px; }
+.tiempos__leyenda { list-style: none; margin: .35rem 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: .25rem 1rem; font-size: .8125rem; color: var(--pizarra); }
+.tiempos__leyenda i { display: inline-block; width: .65rem; height: .65rem; border-radius: 2px; margin-right: .35rem; vertical-align: -.05em; }
+.tiempos__leyenda b { color: var(--tinta); font-family: var(--mono); font-weight: 500; }
+.t-red { background: #9aa1af; }
+.t-apim { background: var(--azure); }
+.t-svc { background: var(--guinda); }
+
+.pasos { position: relative; list-style: none; margin: 0; padding: 0; max-height: 15rem; overflow-y: auto; font-size: .8125rem; counter-reset: paso; }
+.pasos li {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0 .75rem;
+  padding: .35rem .5rem .35rem calc(.5rem + var(--nivel, 0) * .9rem); border-radius: var(--radio);
+  color: #9aa1af; transition: background-color .2s, color .2s;
+}
+.pasos li small { grid-column: 1 / -1; font-family: var(--mono); font-size: .75rem; }
+.pasos__ms { font-family: var(--mono); }
+.pasos li.actual { background: var(--guinda-claro); color: var(--tinta); }
+.pasos li.hecho { color: var(--tinta); }
+.pasos li.hecho small, .pasos li.actual small { color: var(--pizarra); }
+.pasos li.mal.actual, .pasos li.mal.hecho { color: var(--error); }
+
+.pruebas { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; border-top: 1px solid var(--linea); padding-top: .8rem; font-size: .875rem; color: var(--pizarra); }
+
+/* ---------- Tráfico ---------- */
+.trafico { background: var(--tinta); color: #e8eaef; padding: 1.75rem clamp(1rem, 3vw, 2.5rem) 2.5rem; }
+.trafico__cabecera { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: space-between; align-items: flex-end; max-width: 1440px; margin: 0 auto 1rem; }
 .trafico p { margin: .25rem 0 0; color: #a9b0bf; }
-.trafico code { color: #fff; font-family: "IBM Plex Mono", ui-monospace, monospace; }
-.trafico__acciones { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
-.trafico .btn--sec { background: transparent; color: #fff; border-color: #6b7385; }
-.trafico .btn--sec:hover { background: #2b3243; }
+.trafico code { color: #fff; font-family: var(--mono); word-break: break-all; }
 .trafico .btn-texto { color: #cfd4de; }
-.tabla-wrap { max-width: 1280px; margin: 0 auto; overflow-x: auto; max-height: 340px; overflow-y: auto; }
-.log { width: 100%; border-collapse: collapse; font: .8125rem/1.4 "IBM Plex Mono", ui-monospace, monospace; }
+.tabla-wrap { max-width: 1440px; margin: 0 auto; overflow-x: auto; max-height: 340px; overflow-y: auto; }
+.log { width: 100%; border-collapse: collapse; font: .8125rem/1.4 var(--mono); }
 .log th { text-align: left; font-weight: 500; color: #a9b0bf; padding: .4rem .75rem .4rem 0; border-bottom: 1px solid #3a4152; position: sticky; top: 0; background: var(--tinta); }
 .log td { padding: .4rem .75rem .4rem 0; border-bottom: 1px solid #2b3243; white-space: nowrap; }
-.log .estado { font-weight: 500; padding: .05rem .4rem; border-radius: 4px; }
+.log tbody tr { cursor: pointer; }
+.log tbody tr:hover td { background: #2b3243; }
 .log .s2 { background: #1f7a4d33; color: #7ee2ad; }
 .log .s4 { background: #b4231833; color: #ffb0a8; }
 .log .s429 { background: #a15c0744; color: #ffd08a; }
@@ -110,9 +249,11 @@ button { font: inherit; cursor: pointer; }
   * { animation: none !important; transition: none !important; }
 }
 
-@media (max-width: 560px) {
-  .curso { grid-template-columns: minmax(0, 1fr) auto; }
-  .curso__codigo, .curso__nombre, .curso__detalle { grid-column: 1; }
-  .curso .btn { grid-column: 2; grid-row: 1 / span 3; }
+/* ---------- Impresión: solo la ficha ---------- */
+@media print {
+  body { background: #fff; }
+  .barra { background: none; color: var(--tinta); border-bottom: 2px solid var(--tinta); }
+  .alumno, .vivo, .trafico, .aviso, .tarjeta:has(#lista-cursos), #imprimir, .accion { display: none !important; }
+  .pagina { display: block; padding: 1rem 0; }
+  .tarjeta, .ficha-alumno { border: 0; padding: 0; margin-bottom: 1rem; }
 }
-@media (max-width: 860px) { .matricula { position: static; } }

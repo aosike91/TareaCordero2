@@ -1,27 +1,35 @@
 // Web del demo: consume 2 APIs (Catálogo y Matrícula) exclusivamente a través del API Gateway.
 const CFG = window.APP_CONFIG;
 const $ = (sel) => document.querySelector(sel);
-const estado = { alumno: CFG.alumno, matricula: null, cursos: [] };
+const estado = { alumno: CFG.alumno, matricula: null, cursos: [], filtro: "" };
 
-// ---------- Cliente HTTP: todas las llamadas pasan por aquí y quedan registradas ----------
+// ---------- Cliente HTTP: todas las llamadas pasan por aquí, se registran y se animan ----------
 async function api(metodo, ruta, cuerpo, { sinClave = false, silencioso = false } = {}) {
   const headers = { "Accept": "application/json" };
   if (!sinClave) headers["Ocp-Apim-Subscription-Key"] = CFG.subscriptionKey;
   if (cuerpo) headers["Content-Type"] = "application/json";
 
+  const peticion = Flujo.salir(metodo, ruta, cuerpo, sinClave);
   const inicio = performance.now();
   let resp;
   try {
     resp = await fetch(CFG.apiBase + ruta, { method: metodo, headers, body: cuerpo ? JSON.stringify(cuerpo) : undefined });
   } catch (err) {
-    registrar({ metodo, ruta, status: "ERR", ms: performance.now() - inicio });
+    const datos = { status: "ERR", ms: performance.now() - inicio };
+    Flujo.llegar(peticion, datos);
+    registrar(peticion);
     throw new Error(`No se pudo contactar al gateway en ${CFG.apiBase}. Revisa que esté levantado y la configuración CORS.`);
   }
-  registrar({
-    metodo, ruta, status: resp.status, ms: performance.now() - inicio,
+  const gatewayMs = Number.parseFloat(resp.headers.get("X-Gateway-Ms"));
+  Flujo.llegar(peticion, {
+    status: resp.status,
+    ms: performance.now() - inicio,
     correlacion: resp.headers.get("X-Correlation-Id"),
     restante: resp.headers.get("X-RateLimit-Remaining"),
+    gatewayMs: Number.isFinite(gatewayMs) ? gatewayMs : null,
+    traza: leerTraza(resp),
   });
+  registrar(peticion);
 
   const datos = await resp.json().catch(() => ({}));
   if (!resp.ok) {
@@ -33,6 +41,14 @@ async function api(metodo, ruta, cuerpo, { sinClave = false, silencioso = false 
   return datos;
 }
 
+function leerTraza(resp) {
+  try {
+    return JSON.parse(resp.headers.get("X-Traza"));
+  } catch {
+    return null;
+  }
+}
+
 function mensajeDeError(status, datos) {
   if (status === 401) return "El gateway rechazó la llamada: falta la clave de suscripción o no es válida.";
   if (status === 429) return "El gateway limitó las peticiones. Espera unos segundos e inténtalo de nuevo.";
@@ -40,14 +56,20 @@ function mensajeDeError(status, datos) {
 }
 
 // ---------- Registro de tráfico ----------
-function registrar({ metodo, ruta, status, ms, correlacion, restante }) {
+function registrar(p) {
   const fila = document.createElement("tr");
   fila.className = "nuevo";
-  const clase = status === 429 ? "s429" : String(status)[0] === "2" ? "s2" : String(status)[0] === "5" || status === "ERR" ? "s5" : "s4";
+  fila.tabIndex = 0;
+  fila.title = "Ver de nuevo el recorrido";
   const hora = new Date().toLocaleTimeString("es-PE", { hour12: false });
-  fila.innerHTML = `<td>${hora}</td><td>${metodo}</td><td></td><td><span class="estado ${clase}">${status}</span></td>
-    <td>${Math.round(ms)}</td><td>${correlacion ?? "—"}</td><td>${restante ?? "—"}</td>`;
-  fila.children[2].textContent = ruta;
+  fila.innerHTML = `<td>${hora}</td><td>${p.metodo}</td><td></td><td><span class="estado ${Flujo.claseLog(p.status)}">${p.status}</span></td>
+    <td>${Math.round(p.ms)}</td><td></td><td></td>`;
+  fila.children[2].textContent = p.ruta;
+  fila.children[5].textContent = p.correlacion ?? "—";
+  fila.children[6].textContent = p.restante ?? "—";
+  const repetir = () => Flujo.repetir(p);
+  fila.addEventListener("click", repetir);
+  fila.addEventListener("keydown", (ev) => { if (ev.key === "Enter") repetir(); });
   $("#log").prepend(fila);
 }
 
@@ -78,7 +100,8 @@ async function agregar(codigo, boton) {
   }
 }
 
-async function retirar(codigo) {
+async function retirar(codigo, boton) {
+  boton.disabled = true;
   try {
     estado.matricula = await api("DELETE", `${rutaMatricula()}/cursos/${codigo}`);
     avisar(`Retiraste ${codigo} de tu matrícula.`, true);
@@ -95,32 +118,53 @@ function pintarCursos() {
   const lista = $("#lista-cursos");
   lista.innerHTML = "";
   const inscritos = new Set((estado.matricula?.cursos ?? []).map((c) => c.codigo));
-  for (const c of estado.cursos) {
-    const li = document.createElement("li");
-    li.className = "curso";
+  const filtro = estado.filtro.toLowerCase();
+  const visibles = estado.cursos.filter((c) =>
+    !filtro || c.codigo.toLowerCase().includes(filtro) || c.nombre.toLowerCase().includes(filtro));
+
+  if (visibles.length === 0) {
+    lista.innerHTML = `<p class="vacio">${estado.cursos.length ? "Ninguna asignatura coincide con la búsqueda." : "Cargando la oferta…"}</p>`;
+    return;
+  }
+  for (const c of visibles) {
+    const fila = document.createElement("div");
+    fila.className = "tabla__fila";
+    fila.setAttribute("role", "row");
     const lleno = c.vacantes_disponibles === 0;
     const yaInscrito = inscritos.has(c.codigo);
-    li.innerHTML = `
-      <span class="curso__codigo"></span>
-      <span class="curso__nombre"></span>
-      <span class="curso__detalle">${c.creditos} créditos · ${lleno
-        ? '<span class="lleno">Sin vacantes</span>'
-        : `${c.vacantes_disponibles} de ${c.capacidad} vacantes`}</span>
-      <button class="btn ${yaInscrito ? "btn--sec" : "btn--pri"}">${yaInscrito ? "Matriculado" : "Agregar"}</button>`;
-    li.querySelector(".curso__codigo").textContent = c.codigo;
-    li.querySelector(".curso__nombre").textContent = c.nombre;
-    const btn = li.querySelector("button");
+    const ocupacion = c.capacidad ? (c.capacidad - c.vacantes_disponibles) / c.capacidad : 0;
+    fila.innerHTML = `
+      <span role="cell" class="mono codigo"></span>
+      <span role="cell" class="nombre"></span>
+      <span role="cell" class="num">${c.creditos}</span>
+      <span role="cell" class="vacantes ${lleno ? "vacantes--llenas" : ""}">
+        <span class="vacantes__barra"><span style="width:${(ocupacion * 100).toFixed(0)}%"></span></span>
+        <span class="vacantes__txt">${lleno ? "Sin vacantes" : `${c.vacantes_disponibles} de ${c.capacidad}`}</span>
+      </span>
+      <span role="cell" class="accion"><button class="btn ${yaInscrito ? "btn--hecho" : "btn--pri"}"></button></span>`;
+    fila.querySelector(".codigo").textContent = c.codigo;
+    fila.querySelector(".nombre").textContent = c.nombre;
+    const btn = fila.querySelector("button");
+    btn.textContent = yaInscrito ? "Matriculado" : lleno ? "Lleno" : "Agregar";
     btn.disabled = yaInscrito;
-    btn.setAttribute("aria-label", `Agregar ${c.nombre}`);
+    btn.setAttribute("aria-label", `${btn.textContent}: ${c.nombre}`);
     btn.addEventListener("click", () => agregar(c.codigo, btn));
-    lista.append(li);
+    lista.append(fila);
   }
 }
 
 function pintarMatricula() {
-  const m = estado.matricula ?? { cursos: [], total_creditos: 0, max_creditos: 22 };
+  const m = estado.matricula ?? { id: null, cursos: [], total_creditos: 0, max_creditos: 22 };
+  $("#dato-alumno").textContent = estado.alumno;
+  $("#dato-ciclo").textContent = CFG.ciclo;
+  const registrada = m.cursos.length > 0;
+  const est = $("#dato-estado");
+  est.textContent = registrada ? "Matrícula registrada" : "Sin matrícula";
+  est.classList.toggle("estado-matricula--ok", registrada);
+
   $("#total-creditos").textContent = m.total_creditos;
   $("#max-creditos").textContent = m.max_creditos;
+  $("#total-ficha").textContent = m.total_creditos;
   const barra = $("#barra-creditos");
   barra.innerHTML = "";
   barra.style.gridTemplateColumns = `repeat(${m.max_creditos}, 1fr)`;
@@ -134,16 +178,21 @@ function pintarMatricula() {
   const lista = $("#lista-matricula");
   lista.innerHTML = "";
   if (m.cursos.length === 0) {
-    lista.innerHTML = '<li class="vacio">Aún no tienes cursos. Agrega uno desde la lista de cursos ofertados.</li>';
+    lista.innerHTML = '<p class="vacio">Aún no tienes asignaturas. Agrégalas desde la oferta.</p>';
   }
   for (const c of m.cursos) {
-    const li = document.createElement("li");
-    li.className = "inscrito";
-    li.innerHTML = `<div><strong></strong><small></small></div><button class="btn-texto">Retirar</button>`;
-    li.querySelector("strong").textContent = c.nombre;
-    li.querySelector("small").textContent = `${c.codigo} · ${c.creditos} créditos`;
-    li.querySelector("button").addEventListener("click", () => retirar(c.codigo));
-    lista.append(li);
+    const fila = document.createElement("div");
+    fila.className = "tabla__fila";
+    fila.setAttribute("role", "row");
+    fila.innerHTML = `<span role="cell" class="mono codigo"></span><span role="cell" class="nombre"></span>
+      <span role="cell" class="num"></span><span role="cell" class="accion"><button class="btn-texto">Retirar</button></span>`;
+    fila.querySelector(".codigo").textContent = c.codigo;
+    fila.querySelector(".nombre").textContent = c.nombre;
+    fila.querySelector(".num").textContent = c.creditos;
+    const btn = fila.querySelector("button");
+    btn.setAttribute("aria-label", `Retirar ${c.nombre}`);
+    btn.addEventListener("click", () => retirar(c.codigo, btn));
+    lista.append(fila);
   }
   pintarCursos();
 }
@@ -177,9 +226,19 @@ async function probarSinClave() {
   }
 }
 
+async function probarInvalido() {
+  try {
+    await api("GET", `/matricula/matriculas/123/${CFG.ciclo}`);
+    avisar("El gateway dejó pasar un código inválido.");
+  } catch (err) {
+    avisar(`${err.message} (rechazado por la validación del gateway)`);
+  }
+}
+
 // ---------- Arranque ----------
 async function iniciar() {
-  $("#ciclo").textContent = CFG.ciclo;
+  Flujo.iniciar();
+  document.title = `Matrícula ${CFG.ciclo} · Demo API Management`;
   $("#api-base").textContent = CFG.apiBase;
   $("#alumno").value = estado.alumno;
 
@@ -189,9 +248,12 @@ async function iniciar() {
     $("#aviso").hidden = true;
     await cargarMatricula().catch((err) => avisar(err.message));
   });
+  $("#buscar").addEventListener("input", (ev) => { estado.filtro = ev.target.value.trim(); pintarCursos(); });
   $("#recargar").addEventListener("click", () => cargarCursos().catch((err) => avisar(err.message)));
+  $("#imprimir").addEventListener("click", () => window.print());
   $("#probar-limite").addEventListener("click", probarLimite);
   $("#probar-sin-clave").addEventListener("click", probarSinClave);
+  $("#probar-invalido").addEventListener("click", probarInvalido);
   $("#limpiar").addEventListener("click", () => { $("#log").innerHTML = ""; });
 
   pintarMatricula();
