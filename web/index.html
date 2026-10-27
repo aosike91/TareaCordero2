@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Matrícula 2026-II · Demo API Management</title>
+  <title>Matrícula 2026-II · Intranet Académica</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -18,21 +18,44 @@
         <path d="M10 28V13l10 8 10-8v15" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
       </svg>
       <div>
-        <p class="barra__sistema">Sistema de Matrícula</p>
+        <p class="barra__sistema">Intranet Académica</p>
         <p class="barra__facultad">Facultad de Ingeniería de Sistemas e Informática</p>
       </div>
     </div>
-    <form class="alumno" id="form-alumno">
-      <label for="alumno">Código de alumno</label>
-      <div class="alumno__fila">
-        <input id="alumno" inputmode="numeric" maxlength="8" autocomplete="off" required>
-        <button type="submit" class="btn btn--claro">Ingresar</button>
+    <form class="usuario" id="form-alumno">
+      <span class="usuario__avatar" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
+      </span>
+      <div class="usuario__datos">
+        <label for="alumno">Código de alumno</label>
+        <div class="usuario__fila">
+          <input id="alumno" inputmode="numeric" maxlength="8" autocomplete="off" required>
+          <button type="submit" class="btn btn--claro">Cambiar</button>
+        </div>
       </div>
     </form>
   </header>
 
-  <div class="pagina">
+  <nav class="subnav" aria-label="Ubicación">
+    <ol class="migas">
+      <li>Inicio</li>
+      <li>Trámites académicos</li>
+      <li aria-current="page">Matrícula en línea</li>
+    </ol>
+    <label class="interruptor">
+      <input type="checkbox" id="ver-monitor" checked>
+      <span class="interruptor__pista" aria-hidden="true"></span>
+      Monitor de arquitectura
+    </label>
+  </nav>
+
+  <div class="pagina" id="pagina">
     <main class="tramite">
+      <div class="titulo-pagina">
+        <h1>Matrícula en línea <span class="titulo-pagina__ciclo" id="titulo-ciclo"></span></h1>
+        <p>Marca las asignaturas que deseas llevar y presiona <strong>Matricularme</strong> para registrarlas todas a la vez. Tu selección no se guarda hasta que confirmes.</p>
+      </div>
+
       <section class="ficha-alumno" aria-label="Datos del alumno">
         <div class="dato">
           <span class="dato__rotulo">Alumno</span>
@@ -47,11 +70,17 @@
           <span class="estado-matricula" id="dato-estado">—</span>
         </div>
         <div class="dato dato--creditos">
-          <span class="dato__rotulo">Créditos</span>
+          <span class="dato__rotulo">Créditos matriculados</span>
           <span class="dato__valor"><strong id="total-creditos">0</strong> / <span id="max-creditos">22</span></span>
           <div class="creditos__barra" id="barra-creditos" role="img" aria-label="Créditos matriculados"></div>
         </div>
       </section>
+
+      <ol class="pasos-tramite" id="pasos-tramite" data-paso="1" aria-label="Etapas de la matrícula">
+        <li data-n="1"><span class="pasos-tramite__num">1</span><span><b>Selección</b><small>Marca tus asignaturas</small></span></li>
+        <li data-n="2"><span class="pasos-tramite__num">2</span><span><b>Confirmación</b><small>Presiona «Matricularme»</small></span></li>
+        <li data-n="3"><span class="pasos-tramite__num">3</span><span><b>Constancia</b><small>Revisa e imprime</small></span></li>
+      </ol>
 
       <p class="aviso" id="aviso" role="status" hidden></p>
 
@@ -63,28 +92,40 @@
           </div>
           <div class="herramientas">
             <input type="search" id="buscar" placeholder="Buscar código o nombre" aria-label="Buscar asignatura">
-            <button class="btn-texto" id="recargar">Actualizar</button>
+            <button class="btn btn--sec" id="recargar">Actualizar</button>
           </div>
         </div>
-        <div class="tabla" role="table" aria-label="Asignaturas ofertadas">
+        <div class="tabla tabla--oferta" role="table" aria-label="Asignaturas ofertadas">
           <div class="tabla__fila tabla__cab" role="row">
+            <span role="columnheader"><span class="sr">Seleccionar</span></span>
             <span role="columnheader">Código</span>
             <span role="columnheader">Asignatura</span>
             <span role="columnheader" class="num">Cr.</span>
             <span role="columnheader">Vacantes</span>
-            <span role="columnheader"><span class="sr">Acción</span></span>
+            <span role="columnheader">Estado</span>
           </div>
           <div id="lista-cursos" role="rowgroup" aria-live="polite"></div>
         </div>
+
+        <div class="barra-accion" id="barra-accion">
+          <div class="barra-accion__resumen">
+            <p id="resumen-seleccion">No has seleccionado asignaturas.</p>
+            <p class="barra-accion__sub" id="resumen-creditos"></p>
+          </div>
+          <div class="barra-accion__botones">
+            <button class="btn-texto" id="limpiar-seleccion" hidden>Quitar selección</button>
+            <button class="btn btn--pri btn--grande" id="matricularme" disabled>Matricularme</button>
+          </div>
+        </div>
       </section>
 
-      <section class="tarjeta" aria-labelledby="t-ficha">
+      <section class="tarjeta" aria-labelledby="t-ficha" id="constancia">
         <div class="tarjeta__cabecera">
           <div>
-            <p class="paso-num">Paso 2</p>
-            <h2 id="t-ficha">Ficha de matrícula</h2>
+            <p class="paso-num">Paso 3</p>
+            <h2 id="t-ficha">Constancia de matrícula</h2>
           </div>
-          <button class="btn btn--sec" id="imprimir">Imprimir ficha</button>
+          <button class="btn btn--sec" id="imprimir">Imprimir constancia</button>
         </div>
         <div class="tabla tabla--ficha" role="table" aria-label="Asignaturas matriculadas">
           <div class="tabla__fila tabla__cab" role="row">
@@ -101,7 +142,7 @@
       </section>
     </main>
 
-    <aside class="vivo" aria-labelledby="t-vivo">
+    <aside class="vivo" id="monitor" aria-labelledby="t-vivo">
       <div class="vivo__cabecera">
         <div>
           <h2 id="t-vivo"><span class="punto-vivo" aria-hidden="true"></span>Arquitectura en vivo</h2>
@@ -205,7 +246,7 @@
     </aside>
   </div>
 
-  <section class="trafico" aria-labelledby="t-trafico">
+  <section class="trafico" id="trafico" aria-labelledby="t-trafico">
     <div class="trafico__cabecera">
       <div>
         <h2 id="t-trafico">Registro de tráfico</h2>
@@ -222,6 +263,30 @@
       </table>
     </div>
   </section>
+
+  <footer class="pie">
+    <p>Intranet Académica · Sistema de Matrícula</p>
+    <p>Servicios publicados mediante Azure API Management</p>
+  </footer>
+
+  <dialog class="dialogo" id="dlg-confirmar" aria-labelledby="dlg-titulo">
+    <div class="dialogo__cabecera">
+      <p class="paso-num">Paso 2</p>
+      <h2 id="dlg-titulo">Confirmar matrícula</h2>
+      <p class="dialogo__sub" id="dlg-sub"></p>
+    </div>
+    <ul class="dlg-lista" id="dlg-lista"></ul>
+    <dl class="dlg-totales">
+      <div><dt>Créditos ya matriculados</dt><dd id="dlg-actuales">0</dd></div>
+      <div><dt>Créditos a matricular</dt><dd id="dlg-nuevos">0</dd></div>
+      <div class="dlg-totales__final"><dt>Total del periodo</dt><dd id="dlg-total">0</dd></div>
+    </dl>
+    <p class="dlg-resultado" id="dlg-resultado" role="status" hidden></p>
+    <div class="dialogo__pie">
+      <button class="btn btn--sec" id="dlg-cancelar">Cancelar</button>
+      <button class="btn btn--pri btn--grande" id="dlg-confirmar-btn">Confirmar matrícula</button>
+    </div>
+  </dialog>
 
   <script src="flujo.js"></script>
   <script src="app.js"></script>

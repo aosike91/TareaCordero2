@@ -47,12 +47,33 @@ button { font: inherit; cursor: pointer; }
 .barra__logo { width: 44px; height: 44px; flex: none; }
 .barra__sistema { font-size: 1.35rem; font-weight: 800; letter-spacing: -0.01em; line-height: 1.15; }
 .barra__facultad { font-size: .875rem; opacity: .82; }
-.alumno label { display: block; font-size: .75rem; text-transform: uppercase; letter-spacing: .06em; margin-bottom: .25rem; opacity: .85; }
-.alumno__fila { display: flex; gap: .5rem; }
-.alumno input {
-  width: 9.5rem; padding: .5rem .75rem; border-radius: var(--radio); border: 1px solid transparent;
-  font: 600 1rem var(--mono); letter-spacing: .05em;
+.usuario { display: flex; gap: .75rem; align-items: center; padding: .4rem .5rem .4rem .4rem; border-radius: 12px; background: #ffffff14; }
+.usuario__avatar { width: 42px; height: 42px; border-radius: 50%; background: var(--blanco); color: var(--guinda); display: grid; place-items: center; flex: none; }
+.usuario__avatar svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+.usuario label { display: block; font-size: .6875rem; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .2rem; opacity: .8; }
+.usuario__fila { display: flex; gap: .4rem; }
+.usuario input {
+  width: 8.5rem; padding: .35rem .6rem; border-radius: var(--radio); border: 1px solid #ffffff55; background: #ffffff1f; color: var(--blanco);
+  font: 600 .9375rem var(--mono); letter-spacing: .05em;
 }
+.usuario input:focus { background: var(--blanco); color: var(--tinta); }
+.usuario .btn { padding: .35rem .7rem; }
+
+/* ---------- Sub-navegación ---------- */
+.subnav {
+  display: flex; flex-wrap: wrap; gap: .5rem 1.5rem; justify-content: space-between; align-items: center;
+  padding: .6rem clamp(1rem, 3vw, 2.5rem); background: var(--blanco); border-bottom: 1px solid var(--linea); font-size: .875rem;
+}
+.migas { display: flex; flex-wrap: wrap; list-style: none; margin: 0; padding: 0; color: var(--pizarra); }
+.migas li + li::before { content: "›"; margin: 0 .5rem; color: #b0b6c2; }
+.migas [aria-current] { color: var(--tinta); font-weight: 600; }
+.interruptor { display: inline-flex; gap: .55rem; align-items: center; cursor: pointer; color: var(--pizarra); font-weight: 600; user-select: none; }
+.interruptor input { position: absolute; opacity: 0; }
+.interruptor__pista { width: 2.25rem; height: 1.25rem; border-radius: 99px; background: #c4c9d2; position: relative; transition: background-color .2s; }
+.interruptor__pista::after { content: ""; position: absolute; top: 2px; left: 2px; width: calc(1.25rem - 4px); aspect-ratio: 1; border-radius: 50%; background: var(--blanco); transition: transform .2s; box-shadow: 0 1px 2px #0003; }
+.interruptor input:checked + .interruptor__pista { background: var(--azure); }
+.interruptor input:checked + .interruptor__pista::after { transform: translateX(1rem); }
+.interruptor input:focus-visible + .interruptor__pista { outline: 3px solid var(--guinda); outline-offset: 2px; }
 
 /* ---------- Botones ---------- */
 .btn { border-radius: var(--radio); padding: .45rem .85rem; border: 1px solid var(--guinda); font-weight: 600; font-size: .875rem; white-space: nowrap; }
@@ -63,8 +84,10 @@ button { font: inherit; cursor: pointer; }
 .btn--claro { background: var(--blanco); color: var(--guinda); border-color: var(--blanco); }
 .btn--claro:hover { background: var(--guinda-claro); }
 .btn--hecho { background: var(--ok-claro); color: var(--ok); border-color: #b5dcc6; }
+.btn--grande { padding: .7rem 1.25rem; font-size: 1rem; box-shadow: 0 1px 2px #6e142333; }
 .btn:disabled { cursor: default; }
-.btn--pri:disabled { opacity: .5; }
+.btn--pri:disabled { opacity: 1; background: #c4c9d2; border-color: #c4c9d2; color: var(--blanco); box-shadow: none; }
+.btn--sec:disabled { opacity: .5; }
 .btn-texto { background: none; border: 0; color: var(--guinda); font-weight: 600; padding: .25rem; text-decoration: underline; text-underline-offset: 3px; }
 
 /* ---------- Disposición ---------- */
@@ -73,7 +96,33 @@ button { font: inherit; cursor: pointer; }
   max-width: 1440px; margin: 0 auto; padding: 1.5rem clamp(1rem, 3vw, 2.5rem);
 }
 @media (max-width: 1120px) { .pagina { grid-template-columns: minmax(0, 1fr); } }
+.pagina--sin-monitor { grid-template-columns: minmax(0, 1fr); max-width: 1180px; }
+/* Oculto pero renderizado: la animación necesita la geometría del SVG */
+.pagina--sin-monitor .vivo { position: absolute; left: -10000px; top: 0; width: 600px; visibility: hidden; }
 .tramite { display: grid; gap: 1.25rem; min-width: 0; }
+
+.titulo-pagina h1 { font-size: 1.625rem; font-weight: 800; letter-spacing: -0.015em; display: flex; flex-wrap: wrap; gap: .25rem .6rem; align-items: center; }
+.titulo-pagina__ciclo { font-size: .8125rem; font-weight: 700; padding: .15rem .55rem; border-radius: 99px; background: var(--guinda-claro); color: var(--guinda); letter-spacing: 0; }
+.titulo-pagina p { color: var(--pizarra); margin-top: .35rem; max-width: 46rem; }
+.titulo-pagina strong { color: var(--tinta); }
+
+/* ---------- Etapas del trámite ---------- */
+.pasos-tramite { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); background: var(--blanco); border: 1px solid var(--linea); border-radius: 10px; overflow: hidden; }
+.pasos-tramite li { display: flex; gap: .7rem; align-items: center; padding: .75rem 1rem; color: var(--pizarra); position: relative; }
+.pasos-tramite li + li { border-left: 1px solid var(--linea); }
+.pasos-tramite b { display: block; font-size: .9375rem; }
+.pasos-tramite small { display: block; font-size: .78rem; }
+.pasos-tramite__num { width: 1.9rem; height: 1.9rem; border-radius: 50%; display: grid; place-items: center; flex: none; font-weight: 700; font-size: .875rem; border: 2px solid var(--linea); background: var(--blanco); }
+/* Etapa actual */
+.pasos-tramite[data-paso="1"] li[data-n="1"], .pasos-tramite[data-paso="2"] li[data-n="2"], .pasos-tramite[data-paso="3"] li[data-n="3"] { color: var(--tinta); background: var(--guinda-claro); box-shadow: inset 0 -3px 0 var(--guinda); }
+.pasos-tramite[data-paso="1"] li[data-n="1"] .pasos-tramite__num, .pasos-tramite[data-paso="2"] li[data-n="2"] .pasos-tramite__num, .pasos-tramite[data-paso="3"] li[data-n="3"] .pasos-tramite__num { background: var(--guinda); border-color: var(--guinda); color: var(--blanco); }
+/* Etapas completadas */
+.pasos-tramite[data-paso="2"] li[data-n="1"] .pasos-tramite__num, .pasos-tramite[data-paso="3"] li:not([data-n="3"]) .pasos-tramite__num { background: var(--ok); border-color: var(--ok); color: transparent; position: relative; }
+.pasos-tramite[data-paso="2"] li[data-n="1"] .pasos-tramite__num::after, .pasos-tramite[data-paso="3"] li:not([data-n="3"]) .pasos-tramite__num::after { content: "✓"; color: var(--blanco); position: absolute; }
+@media (max-width: 640px) {
+  .pasos-tramite li { flex-direction: column; text-align: center; gap: .3rem; padding: .6rem .4rem; }
+  .pasos-tramite small { display: none; }
+}
 
 /* ---------- Ficha del alumno ---------- */
 .ficha-alumno {
@@ -110,6 +159,34 @@ button { font: inherit; cursor: pointer; }
   padding: .6rem .5rem; border-bottom: 1px solid var(--linea);
 }
 .tabla--ficha .tabla__fila { grid-template-columns: 5.5rem minmax(0, 1fr) 2.5rem 5rem; }
+.tabla--oferta .tabla__fila { grid-template-columns: 1.5rem 5.5rem minmax(0, 1fr) 2.5rem 9rem 8.25rem; }
+.tabla--oferta label.tabla__fila { cursor: pointer; transition: background-color .15s; }
+.tabla--oferta label.tabla__fila:hover { background: #fafafb; }
+.tabla--oferta .tabla__fila--elegida, .tabla--oferta .tabla__fila--elegida:hover { background: var(--guinda-claro); box-shadow: inset 3px 0 0 var(--guinda); }
+.tabla--oferta .tabla__fila--bloqueada { cursor: default; }
+.tabla--oferta .tabla__fila--bloqueada:hover { background: none; }
+.tabla--oferta .tabla__fila--bloqueada:not(:has(.insignia--ok)) .nombre, .tabla--oferta .tabla__fila--bloqueada:not(:has(.insignia--ok)) .codigo { opacity: .55; }
+.marca input { width: 1.15rem; height: 1.15rem; margin: 0; accent-color: var(--guinda); cursor: inherit; display: block; }
+.insignia { display: inline-block; font-size: .75rem; font-weight: 700; padding: .15rem .55rem; border-radius: 99px; white-space: nowrap; background: var(--fondo); color: var(--pizarra); }
+.insignia--ok { background: var(--ok-claro); color: var(--ok); }
+.insignia--sel { background: var(--guinda); color: var(--blanco); }
+.insignia--mal { background: var(--error-claro); color: var(--error); }
+.insignia--aviso { background: #fff4e0; color: var(--alerta); }
+
+/* ---------- Barra de acción: confirma toda la selección ---------- */
+.barra-accion {
+  position: sticky; bottom: 0; z-index: 5; margin: 1rem -1.25rem -1.25rem; padding: .9rem 1.25rem;
+  display: flex; flex-wrap: wrap; gap: .75rem 1.5rem; justify-content: space-between; align-items: center;
+  background: var(--blanco); border-top: 1px solid var(--linea); border-radius: 0 0 10px 10px;
+}
+.barra-accion--activa { background: #fff9fa; border-top: 2px solid var(--guinda); box-shadow: 0 -6px 16px -8px #1d233026; }
+.barra-accion__resumen p:first-child { font-size: 1rem; }
+.barra-accion__sub { font-size: .8125rem; color: var(--pizarra); }
+.barra-accion__botones { display: flex; gap: .75rem; align-items: center; margin-left: auto; }
+@media (max-width: 640px) {
+  .barra-accion__botones { width: 100%; }
+  .barra-accion__botones .btn--pri { flex: 1; }
+}
 .tabla__cab { font-size: .75rem; text-transform: uppercase; letter-spacing: .06em; color: var(--pizarra); background: var(--fondo); border-radius: var(--radio) var(--radio) 0 0; padding-block: .45rem; }
 .tabla__total { font-weight: 700; border-bottom: 0; border-top: 2px solid var(--tinta); }
 .codigo { color: var(--guinda); font-weight: 600; }
@@ -132,7 +209,42 @@ button { font: inherit; cursor: pointer; }
   .tabla__fila .vacantes { grid-column: 1; }
   .tabla__fila .accion { grid-column: 2; grid-row: 2 / span 2; }
   .tabla__total .num::after { content: ""; }
+  .tabla--oferta .tabla__fila { grid-template-columns: 1.5rem minmax(0, 1fr) auto; }
+  .tabla--oferta .marca { grid-column: 1; grid-row: 1 / span 3; align-self: start; padding-top: .2rem; }
+  .tabla--oferta .codigo, .tabla--oferta .nombre, .tabla--oferta .vacantes { grid-column: 2; }
+  .tabla--oferta .num { grid-column: 3; grid-row: 1; }
+  .tabla--oferta .estado-curso { grid-column: 3; grid-row: 2 / span 2; text-align: right; }
 }
+
+/* ---------- Diálogo de confirmación ---------- */
+.dialogo { width: min(560px, calc(100% - 2rem)); border: 0; border-radius: 12px; padding: 0; color: var(--tinta); box-shadow: 0 24px 60px #1d233040; }
+.dialogo::backdrop { background: #1d2330a6; }
+.dialogo__cabecera { padding: 1.25rem 1.5rem .9rem; border-bottom: 1px solid var(--linea); }
+.dialogo__cabecera h2 { font-size: 1.3rem; }
+.dialogo__sub { color: var(--pizarra); font-size: .875rem; margin-top: .2rem; }
+.dlg-lista { list-style: none; margin: 0; padding: .5rem 1.5rem; max-height: 45vh; overflow-y: auto; }
+.dlg-lista li { display: grid; grid-template-columns: 5rem minmax(0, 1fr) auto; gap: .1rem .75rem; padding: .6rem 0; border-bottom: 1px solid var(--linea); align-items: baseline; }
+.dlg-lista__nombre { font-weight: 600; }
+.dlg-lista__cr { font-size: .875rem; color: var(--pizarra); font-variant-numeric: tabular-nums; }
+.dlg-lista__estado { grid-column: 2 / -1; font-size: .8125rem; font-weight: 600; }
+.dlg-lista__estado:empty { display: none; }
+.dlg-lista li.procesando .dlg-lista__estado { color: var(--azure); }
+.dlg-lista li.ok .dlg-lista__estado { color: var(--ok); }
+.dlg-lista li.ok .dlg-lista__estado::before { content: "✓ "; }
+.dlg-lista li.mal .dlg-lista__estado { color: var(--error); font-weight: 500; }
+.dlg-totales { margin: 0; padding: .75rem 1.5rem; display: grid; gap: .25rem; background: var(--fondo); font-size: .9rem; }
+.dlg-totales div { display: flex; justify-content: space-between; }
+.dlg-totales dt { color: var(--pizarra); }
+.dlg-totales dd { margin: 0; font-weight: 600; font-variant-numeric: tabular-nums; }
+.dlg-totales__final { border-top: 1px solid var(--linea); padding-top: .35rem; margin-top: .15rem; }
+.dlg-totales__final dt, .dlg-totales__final dd { color: var(--tinta); font-weight: 800; }
+.dlg-resultado { margin: 1rem 1.5rem 0; padding: .7rem .9rem; border-radius: var(--radio); border-left: 4px solid; font-weight: 600; }
+.dlg-resultado.ok { border-color: var(--ok); background: var(--ok-claro); color: var(--ok); }
+.dlg-resultado.mal { border-color: var(--error); background: var(--error-claro); color: var(--error); }
+.dialogo__pie { display: flex; justify-content: flex-end; gap: .75rem; padding: 1rem 1.5rem 1.25rem; }
+
+/* ---------- Pie ---------- */
+.pie { display: flex; flex-wrap: wrap; gap: .25rem 1.5rem; justify-content: space-between; padding: 1rem clamp(1rem, 3vw, 2.5rem); font-size: .8125rem; color: var(--pizarra); border-top: 1px solid var(--linea); background: var(--blanco); }
 
 /* ---------- Arquitectura en vivo ---------- */
 .vivo {
@@ -253,7 +365,7 @@ button { font: inherit; cursor: pointer; }
 @media print {
   body { background: #fff; }
   .barra { background: none; color: var(--tinta); border-bottom: 2px solid var(--tinta); }
-  .alumno, .vivo, .trafico, .aviso, .tarjeta:has(#lista-cursos), #imprimir, .accion { display: none !important; }
+  .usuario, .subnav, .pasos-tramite, .titulo-pagina p, .pie, .vivo, .trafico, .aviso, .tarjeta:has(#lista-cursos), #imprimir, .accion { display: none !important; }
   .pagina { display: block; padding: 1rem 0; }
   .tarjeta, .ficha-alumno { border: 0; padding: 0; margin-bottom: 1rem; }
 }
